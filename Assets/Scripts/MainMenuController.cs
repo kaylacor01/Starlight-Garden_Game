@@ -1,16 +1,30 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        GameSettings.Load();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void PlayGame()
     {
-        
+        SceneManager.LoadScene("Level1");
+    }
+
+    public void OpenSettings()
+    {
+        SceneManager.LoadScene("Settings");
+    }
+
+    public void OpenGallery()
+    {
+        SceneManager.LoadScene("Gallery");
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }
