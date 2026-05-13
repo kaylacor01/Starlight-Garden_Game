@@ -5,7 +5,7 @@ using System;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    public enum GameState { MainMenu, Playing, Paused, GameOver }
+    public enum GameState { MainMenu, Playing, Paused, GameOver, Win}
 
     public GameState CurrentState { get; private set; }
 
@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            PlayerDeath.OnPlayerDied += HandlePlayerDied;
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
@@ -28,22 +29,27 @@ public class GameManager : MonoBehaviour
     void OnDestroy()
     {
         if (Instance == this)
+        {
+            PlayerDeath.OnPlayerDied -= HandlePlayerDied;
             SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        PlayerDeath.OnPlayerDied -= HandlePlayerDied;
-        PlayerDeath.OnPlayerDied += HandlePlayerDied;
-        
         if (scene.name == "MainMenu")
             SetState(GameState.MainMenu);
         else if (scene.name == "Level1")
             SetState(GameState.Playing);
+        else if (scene.name == "GameOver")
+            SetState(GameState.GameOver);
     }
 
     void Update()
     {
+        if (SceneManager.GetActiveScene().name != "Level1")
+            return;
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (CurrentState == GameState.Playing) PauseGame();
@@ -53,15 +59,16 @@ public class GameManager : MonoBehaviour
 
     void HandlePlayerDied()
     {
-        Debug.Log("GameManager received PlayerDied -> switching to GameOver");
+        Debug.Log("Player Died -> loading to GameOver");
         SetState(GameState.GameOver);
+        SceneManager.LoadScene("GameOver");
     }
 
     public void SetState(GameState newState)
     {
         CurrentState = newState;
 
-        Time.timeScale = (newState == GameState.Paused || newState == GameState.GameOver) ? 0f : 1f;
+        Time.timeScale = (newState == GameState.Paused) ? 0f : 1f;
 
         Debug.Log("State changed to: " + newState);
 
@@ -80,12 +87,18 @@ public class GameManager : MonoBehaviour
     public void RestartGame()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("Level1");
     }
 
     public void StartGame()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("Level1");
+    }
+
+    public void WinGame()
+    {
+        SetState(GameState.Win);
+        Time.timeScale = 0f;
     }
 }

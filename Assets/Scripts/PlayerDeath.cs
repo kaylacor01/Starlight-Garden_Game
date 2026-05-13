@@ -1,16 +1,37 @@
 using UnityEngine;
+using UnityEngine.UI;
+using System;
 
 public class PlayerDeath : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public static event Action OnPlayerDied;
+    public int maxhealth = 100;
+    public int currenthealth;
+
+    public Image fill;
+
     void Start()
     {
-        
+        currenthealth = maxhealth;
+        UpdateHealthBar();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void TakeDamage(int damage)
     {
-        
+        currenthealth -= damage;
+        currenthealth = Mathf.Clamp(currenthealth, 0, maxhealth);
+        UpdateHealthBar();
+
+        if (currenthealth <= 0)
+        {
+            PlayerDeath.OnPlayerDied?.Invoke();
+            Destroy(gameObject);
+        }
+    }
+
+    void UpdateHealthBar()
+    {
+        float r = (float)currenthealth / maxhealth;
+        fill.fillAmount = r;
     }
 }

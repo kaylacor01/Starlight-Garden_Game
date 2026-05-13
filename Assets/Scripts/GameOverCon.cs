@@ -1,21 +1,16 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MainMenuController : MonoBehaviour
+public class GameOverCon : MonoBehaviour
 {
-    void Start()
-    {
-        GameSettings.Load();
-    }
-
-    public void PlayGame()
+    public void Retry()
     {
         SceneManager.LoadScene("Level1");
     }
 
-    public void OpenSettings()
+    public void BackToMenu()
     {
-        SceneManager.LoadScene("Settings");
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void QuitGame()
